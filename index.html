@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How we capture live use-case feedback · ArcelorMittal Long SIC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --molten:#ff6a13; --molten-2:#ff9a2e; --ember:#e4002b; --magenta:#b0186b; --ok:#35d6a4; --blue:#7aa2ff;
+    --steel-0:#0b0e13; --steel-1:#10141c; --steel-2:#151b25; --steel-3:#1b2230;
+    --line:rgba(255,255,255,.09); --ink:#eef2f8; --ink-soft:#c4ccd8; --mist:#828e9f;
+    --grad:linear-gradient(120deg,var(--molten-2) 0%,var(--ember) 52%,var(--magenta) 100%);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,rgba(255,106,19,.10),transparent 60%),var(--steel-0);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif}
+  a{color:var(--molten-2)}
+  h1,h2,h3,h4{font-family:Oswald,sans-serif;letter-spacing:.3px;margin:0}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  header.top{position:sticky;top:0;z-index:5;background:rgba(11,14,19,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  header.top .brand{font-family:Oswald;font-size:15px;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-soft)}
+  header.top nav a{color:var(--mist);text-decoration:none;font-size:14px;margin-left:22px}
+  header.top nav a:hover{color:var(--ink)}
+
+  .hero{padding:80px 0 50px}
+  .eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--molten);font-weight:700;margin-bottom:14px}
+  .hero h1{font-size:clamp(40px,6vw,68px);line-height:1.02;text-transform:uppercase}
+  .accent{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.lead{font-size:20px;color:var(--ink-soft);max-width:780px;margin:22px 0 0}
+
+  .tldr{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px}
+  .tldr .k{background:linear-gradient(180deg,var(--steel-3),var(--steel-2));border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .tldr .k b{display:block;font-family:Oswald;font-size:30px;color:var(--molten-2);line-height:1.1}
+  .tldr .k span{font-size:13px;color:var(--mist);letter-spacing:.4px}
+
+  section{padding:60px 0;border-top:1px solid var(--line)}
+  section > .wrap > h2{font-size:34px;text-transform:uppercase;margin-bottom:10px}
+  section > .wrap > p.sub{color:var(--ink-soft);max-width:820px;margin:0 0 30px;font-size:17px}
+
+  /* flow strip */
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:20px;position:relative}
+  .flow .st{position:relative;padding:0 10px;text-align:center}
+  .flow .st .dot{width:58px;height:58px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;font-family:Oswald;font-size:24px;font-weight:700;background:var(--grad);color:#fff;box-shadow:0 8px 24px rgba(228,0,43,.3);position:relative;z-index:1}
+  .flow .st:not(:last-child)::after{content:"";position:absolute;top:29px;left:calc(50% + 29px);right:calc(-50% + 29px);height:2px;background:linear-gradient(90deg,rgba(255,154,46,.7),rgba(176,24,107,.7))}
+  .flow .st h4{font-size:17px;text-transform:uppercase;margin-bottom:6px}
+  .flow .st p{font-size:14px;color:var(--mist);margin:0}
+  .flow .st .who{display:inline-block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;border-radius:999px;padding:2px 10px;margin-bottom:8px;border:1px solid}
+  .who.presenter{color:var(--molten-2);border-color:rgba(255,154,46,.4)}
+  .who.audience{color:var(--ok);border-color:rgba(53,214,164,.4)}
+  .who.screen{color:var(--blue);border-color:rgba(122,162,255,.4)}
+
+  /* step blocks */
+  .step{display:grid;grid-template-columns:5fr 7fr;gap:44px;align-items:center;padding:46px 0}
+  .step + .step{border-top:1px dashed var(--line)}
+  .step.rev{grid-template-columns:7fr 5fr}
+  .step.rev .txt{order:2}
+  .step .num{font-family:Oswald;font-size:14px;letter-spacing:2.5px;color:var(--molten);text-transform:uppercase;margin-bottom:8px}
+  .step h3{font-size:28px;text-transform:uppercase;line-height:1.15;margin-bottom:14px}
+  .step p{color:var(--ink-soft);margin:0 0 12px}
+  .step ul{color:var(--ink-soft);padding-left:20px;margin:0 0 12px}
+  .step li{margin-bottom:6px}
+  .step li b,.step p b{color:var(--ink)}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:.86em;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:#ffc48a}
+
+  figure{margin:0}
+  figure img{display:block;width:100%;border-radius:12px;border:1px solid var(--line);box-shadow:0 18px 50px rgba(0,0,0,.5);cursor:zoom-in;transition:transform .2s}
+  figure img:hover{transform:translateY(-2px)}
+  figcaption{font-size:13px;color:var(--mist);margin-top:10px;text-align:center}
+  .phones{display:flex;gap:22px;justify-content:center;align-items:flex-start}
+  .phone{width:260px;border-radius:34px;padding:10px;background:#05070a;border:1px solid rgba(255,255,255,.14);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .phone .scr{height:540px;overflow:hidden;border-radius:26px}
+  .phone .scr.scroll{overflow-y:auto}
+  .phone img{display:block;width:100%;cursor:zoom-in;border:0;border-radius:0;box-shadow:none}
+  .phone img:hover{transform:none}
+
+  .callout{margin-top:16px;border-left:3px solid var(--molten);background:rgba(255,106,19,.07);padding:12px 16px;border-radius:0 10px 10px 0;font-size:15px;color:var(--ink-soft)}
+  .callout.green{border-color:var(--ok);background:rgba(53,214,164,.07)}
+
+  /* scoring */
+  .formula{font-family:Oswald;font-size:clamp(26px,4vw,42px);text-align:center;margin:10px 0 30px;padding:28px;border-radius:16px;background:linear-gradient(180deg,var(--steel-3),var(--steel-2));border:1px solid var(--line)}
+  .formula .v{color:var(--ok)} .formula .e{color:#ffb020} .formula .b{color:#ff5a4d} .formula .p{color:var(--blue)} .formula .s{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent} .formula .o{color:var(--mist)}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .card{background:linear-gradient(180deg,var(--steel-3),var(--steel-2));border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h4{font-size:18px;text-transform:uppercase;margin-bottom:8px}
+  .card p{font-size:14px;color:var(--ink-soft);margin:0}
+  .card .tag{font-family:Oswald;font-size:30px;font-weight:700;line-height:1;margin-bottom:10px}
+
+  /* quadrant */
+  .quad{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;max-width:440px;aspect-ratio:1.4;margin:0 auto}
+  .quad div{border-radius:10px;display:grid;place-items:center;text-align:center;font-family:Oswald;text-transform:uppercase;letter-spacing:1px;font-size:15px;border:1px solid var(--line);padding:8px}
+  .quad small{display:block;font-family:Inter;text-transform:none;letter-spacing:0;font-size:12px;color:var(--mist)}
+  .quad .df{background:rgba(53,214,164,.14);color:var(--ok)}
+  .quad .nh{background:rgba(255,176,32,.08);color:#ffb020}
+  .quad .ig{background:rgba(255,255,255,.03);color:var(--mist)}
+  .quad .mb{background:rgba(122,162,255,.08);color:var(--blue)}
+
+  /* tech table */
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:Oswald;text-transform:uppercase;letter-spacing:1px;font-size:13px;color:var(--mist);font-weight:500}
+  td:first-child{white-space:nowrap}
+  td{color:var(--ink-soft)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  .arch{font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.55;color:var(--ink-soft);background:var(--steel-1);border:1px solid var(--line);border-radius:12px;padding:20px;white-space:pre;overflow-x:auto}
+
+  footer{padding:40px 0 70px;color:var(--mist);font-size:13px;border-top:1px solid var(--line)}
+
+  .lb{position:fixed;inset:0;background:rgba(5,7,10,.92);display:none;align-items:center;justify-content:center;z-index:50;cursor:zoom-out;padding:30px}
+  .lb.open{display:flex}
+  .lb img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+
+  @media (max-width:900px){
+    .tldr,.cards{grid-template-columns:1fr 1fr}
+    .flow{grid-template-columns:1fr;gap:26px}.flow .st::after{display:none}
+    .step,.step.rev,.two{grid-template-columns:1fr}.step.rev .txt{order:0}
+    header.top nav{display:none}
+  }
+  @media print{header.top{position:static} .lb{display:none!important} section{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">ArcelorMittal · Long SIC</div>
+    <nav>
+      <a href="#flow">The flow</a>
+      <a href="#walkthrough">Walkthrough</a>
+      <a href="#scoring">Scoring</a>
+      <a href="#tech">How it's built</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Team explainer</div>
+    <h1>From demo to <span class="accent">priority list</span>,<br>live in the room.</h1>
+    <p class="lead">During the ArcelorMittal Long SIC session, after every use-case demo the audience scans a QR code and rates what they just saw on their phone. Votes come in live and turn into a <b>Value × Effort heat map</b> and a <b>ranked priority list</b>, so the session ends with a backlog the customer helped build.</p>
+    <div class="tldr">
+      <div class="k"><b>10</b><span>use cases, each with its own QR code</span></div>
+      <div class="k"><b>~30 s</b><span>to vote on a phone, fully anonymous</span></div>
+      <div class="k"><b>89</b><span>responses captured in the session</span></div>
+      <div class="k"><b>0</b><span>apps to install, no login, no build step</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FLOW ============ -->
+<section id="flow">
+  <div class="wrap">
+    <h2>The flow in one picture</h2>
+    <p class="sub">Three surfaces: the <b>presenter screen</b> we drive with the arrow keys, the attendee's <b>phone</b>, and the <b>results screen</b> on the projector.</p>
+    <div class="flow">
+      <div class="st"><div class="dot">1</div><span class="who presenter">Presenter</span><h4>Pick a use case</h4><p>Open it from the metro map of all 10 use cases.</p></div>
+      <div class="st"><div class="dot">2</div><span class="who presenter">Presenter</span><h4>Demo it</h4><p>The page shows the story steps and a screenshot.</p></div>
+      <div class="st"><div class="dot">3</div><span class="who presenter">Presenter</span><h4>Press ▶ for the QR</h4><p>The screenshot is swapped for that use case's QR code.</p></div>
+      <div class="st"><div class="dot">4</div><span class="who audience">Audience</span><h4>Vote on the phone</h4><p>Value, effort today, data, channels, actions. Anonymous.</p></div>
+      <div class="st"><div class="dot">5</div><span class="who screen">Projector</span><h4>See the ranking</h4><p>Live heat map + priority list, plus a final scored view.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WALKTHROUGH ============ -->
+<section id="walkthrough">
+  <div class="wrap">
+    <h2>Walkthrough with screenshots</h2>
+    <p class="sub">Click any screenshot to see it full size.</p>
+
+    <!-- 1 -->
+    <div class="step">
+      <div class="txt">
+        <div class="num">Step 1 · Presenter screen</div>
+        <h3>The use-case map</h3>
+        <p>The session starts on a metro-style map of the <b>10 AI use cases</b>, grouped into three themes: <b>Sell &amp; Quote</b> (orange), <b>Knowledge &amp; Quality</b> (magenta) and <b>Agents Everywhere</b> (red).</p>
+        <p>Clicking a station opens that use case. After that the presenter only needs the <b>← / →</b> keys.</p>
+      </div>
+      <figure><img src="img/01-map.png" alt="Use-case metro map" /><figcaption>SIC-usecases-site/index.html, the home map</figcaption></figure>
+    </div>
+
+    <!-- 2 -->
+    <div class="step rev">
+      <div class="txt">
+        <div class="num">Step 2 · Presenter screen</div>
+        <h3>Tell the story, run the demo</h3>
+        <p>Each use case has a page with the <b>"What we'll see"</b> steps on the left and a screenshot or diagram on the right. The portfolio rail at the top shows where we are in the session.</p>
+        <p>This is the backdrop while we demo the real thing in the Salesforce org.</p>
+      </div>
+      <figure><img src="img/02-usecase.png" alt="Use-case detail page" /><figcaption>Use case detail, e.g. UC01 Automatic Quote From an Email</figcaption></figure>
+    </div>
+
+    <!-- 3 -->
+    <div class="step">
+      <div class="txt">
+        <div class="num">Step 3 · Presenter screen</div>
+        <h3>Press ▶ and the QR code appears</h3>
+        <p>When the demo is done, the presenter presses <b>→</b>. The screenshot is replaced by a <b>"Scan the QR code"</b> panel for <b>that specific use case</b>.</p>
+        <ul>
+          <li><b>First →</b> shows the QR. <b>Second →</b> moves to the next use case.</li>
+          <li><b>←</b> hides the QR again if you need the screenshot back.</li>
+          <li>After the last use case, <b>→</b> goes to the hands-on exercise page.</li>
+        </ul>
+        <div class="callout">Every QR deep-links to <code>feedback.html?uc=UC01</code> … <code>UC10</code>, so votes always land on the right use case. The images are <code>img/qr-01.png</code> … <code>qr-10.png</code>.</div>
+      </div>
+      <figure><img src="img/03-qr.png" alt="QR feedback panel" /><figcaption>The same page in feedback mode: QR replaces the screenshot</figcaption></figure>
+    </div>
+
+    <!-- 4 -->
+    <div class="step rev">
+      <div class="txt">
+        <div class="num">Step 4 · Attendee's phone</div>
+        <h3>A 30-second, anonymous form</h3>
+        <p>The QR opens a mobile form already set to that use case. Two required taps and three optional chip groups:</p>
+        <ul>
+          <li><b>Business value for you</b>: 1–5</li>
+          <li><b>Effort today</b>: 1–5. How much <i>manual</i> work this takes now, i.e. the pain the use case removes</li>
+          <li><b>Data needed</b>: ERP/SAP, CRM, orders, logistics… plus "add your own"</li>
+          <li><b>Where do you want it?</b> Mobile, web, phone/voice, Teams, email</li>
+          <li><b>What should it do?</b> Draft a quote, update a record, notify, approve…</li>
+        </ul>
+        <div class="callout green"><b>Fully anonymous.</b> We never ask for a name. Each phone gets a random id, so re-submitting overwrites that phone's earlier answer: one vote per phone per use case.</div>
+      </div>
+      <div class="phones">
+        <div class="phone"><div class="scr"><img src="img/04-phone-top.png" alt="Phone form, top" /></div></div>
+        <div class="phone"><div class="scr scroll"><img src="img/05-phone-full.png" alt="Phone form, full (scroll)" /></div></div>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="step">
+      <div class="txt">
+        <div class="num">Step 5 · Projector</div>
+        <h3>Live results: heat map + ranking</h3>
+        <p>Every vote shows up on the results screen within a second. Two panels:</p>
+        <ul>
+          <li><b>Value × Effort heat map</b>: one bubble per use case, size = number of votes. <b>Top-right = DO FIRST.</b></li>
+          <li><b>Priority ranking</b>: auto-sorted, with the averages and vote count on each card.</li>
+        </ul>
+        <p>Below these, two more panels show <b>which ArcelorMittal systems</b> each use case depends on (from the "data needed" answers). That gives an early view of integration effort.</p>
+        <p>Exports: <b>CSV</b> (summary + raw votes) and a <b>PNG</b> of the results for the follow-up deck.</p>
+      </div>
+      <figure><img src="img/06-results-live.png" alt="Live results" /><figcaption>results.html, the live view</figcaption></figure>
+    </div>
+
+    <!-- 6 -->
+    <div class="step rev">
+      <div class="txt">
+        <div class="num">Step 6 · Projector, wrap-up</div>
+        <h3>Final view: the scored priority list</h3>
+        <p>A <b>Live ⇄ Final v2</b> switch in the top bar moves to the wrap-up view. Here the ranking also accounts for <b>delivery reality</b> (back-end integration cost and how many people voted), and every card shows its own calculation so the room can follow it.</p>
+        <p>The chart now reads as <b>"the prize vs. the priority"</b>. A bubble's position is the raw prize, its outline shows back-end dependency, and its label shows its final rank. This explains why a top-right bubble such as <i>Where Is My Order?</i> can still rank #4.</p>
+        <div class="callout">The final view runs on a <b>snapshot</b> of the session's votes, so it stays stable after the session even if more votes arrive.</div>
+      </div>
+      <figure><img src="img/07-results-final.png" alt="Final v2 results" data-full="img/07b-results-final-full.png" /><figcaption>results-v2.html, the final view (click for the full page)</figcaption></figure>
+    </div>
+
+    <!-- 7 -->
+    <div class="step">
+      <div class="txt">
+        <div class="num">After the last use case</div>
+        <h3>Straight into the hands-on</h3>
+        <p>On the last use case, a final <b>→</b> after the QR moves the presenter screen to the <b>hands-on exercise page</b>. It has the lab URL, the logins and three short exercises, so the session goes from "rate it" to "try it" without leaving the presenter flow.</p>
+      </div>
+      <figure><img src="img/08-exercise.png" alt="Exercise page" /><figcaption>SIC-usecases-site/exercise.html</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCORING ============ -->
+<section id="scoring">
+  <div class="wrap">
+    <h2>How the ranking is calculated</h2>
+    <p class="sub">The idea is simple: <b>high business value + lots of manual effort today = biggest payoff</b>. The final score adds a few corrections so the result holds up with real-world vote counts.</p>
+
+    <div class="two" style="align-items:center;margin-bottom:34px">
+      <div>
+        <h3 style="font-size:22px;text-transform:uppercase;margin-bottom:10px">The heat-map quadrants</h3>
+        <p style="color:var(--ink-soft);margin:0">Business value on the vertical axis, effort today on the horizontal. Effort here means <b>effort removed</b>, so to the right is better.</p>
+      </div>
+      <div class="quad">
+        <div class="nh">Nice to have<small>high value, little pain today</small></div>
+        <div class="df">Do first<small>high value + high pain today</small></div>
+        <div class="ig">Ignore<small>low value, little pain</small></div>
+        <div class="mb">Maybe<small>painful, but low value</small></div>
+      </div>
+    </div>
+
+    <div class="formula"><span class="s">SCORE</span> <span class="o">=</span> <span class="v">V</span> <span class="o">×</span> <span class="e">E</span> <span class="o">× (1 −</span> <span class="b">backend</span><span class="o">) ×</span> <span class="p">popularity</span></div>
+
+    <div class="cards">
+      <div class="card"><div class="tag" style="color:var(--ok)">V</div><h4>Business value</h4><p>Average 1–5 rating, <b>nudged toward neutral (3)</b> by the weight of ~3 votes. Three enthusiastic votes can't beat fifteen solid ones.</p></div>
+      <div class="card"><div class="tag" style="color:#ffb020">E</div><h4>Effort today</h4><p>Same vote-weighting. Measures the manual pain the use case takes away.</p></div>
+      <div class="card"><div class="tag" style="color:#ff5a4d">backend</div><h4>Integration penalty</h4><p>Set per use case by us: <b>low 0% · medium 10% · high 20%</b>. A small nudge, not a veto: deep-integration ideas still rank if the room wants them.</p></div>
+      <div class="card"><div class="tag" style="color:var(--blue)">popularity</div><h4>Engagement</h4><p>More votes = more interest. The most-voted use case keeps <b>100%</b>, the least-voted <b>70%</b>, scaled in between.</p></div>
+    </div>
+    <div class="callout" style="margin-top:22px">Worked example from the session: <b>UC01 Automatic Quote From an Email</b>, 17 votes, room avg value 4.5 / effort 3.8 → vote-weighted 4.2 × 3.7 = 15.7, backend low (0%), most-voted (100%) → <b>score 15.7, rank #1</b>.</div>
+  </div>
+</section>
+
+<!-- ============ TECH ============ -->
+<section id="tech">
+  <div class="wrap">
+    <h2>How it's built</h2>
+    <p class="sub">Plain HTML + JavaScript: no framework, no build step, no app to install. Hosted for free on GitHub Pages with a free Firebase database for live sync.</p>
+    <div class="two">
+      <div class="arch">  PRESENTER LAPTOP                 ATTENDEE PHONES
+ ┌───────────────────────┐        ┌──────────────────┐
+ │ SIC-usecases-site     │  QR    │ feedback.html    │
+ │  index.html  (map +   │ ─────▶ │   ?uc=UC01..UC10 │
+ │  use case + QR panel) │  scan  │ (anonymous form) │
+ └───────────────────────┘        └────────┬─────────┘
+                                           │ write vote
+                                           ▼
+                           ┌───────────────────────────┐
+                           │ Firebase Realtime DB      │
+                           │ feedback/{UC}/responses/  │
+                           │        {anonId}           │
+                           └────────────┬──────────────┘
+                                        │ live push
+                                        ▼
+                           ┌───────────────────────────┐
+                           │ PROJECTOR                 │
+                           │ results.html    (Live)    │
+                           │ results-v2.html (Final)   │
+                           └───────────────────────────┘</div>
+      <table>
+        <tr><th>Piece</th><th>What it does</th></tr>
+        <tr><td><code>SIC-usecases-site/index.html</code></td><td>Presenter map + use-case pages; → toggles the QR panel</td></tr>
+        <tr><td><code>SIC-usecases-site/img/qr-XX.png</code></td><td>One QR image per use case</td></tr>
+        <tr><td><code>sic-feedback/feedback.html</code></td><td>Mobile voting form, use case chosen via <code>?uc=</code></td></tr>
+        <tr><td><code>sic-feedback/results.html</code></td><td>Live heat map, ranking, system dependencies, CSV/PNG export</td></tr>
+        <tr><td><code>sic-feedback/results-v2.html</code></td><td>Final scored view (snapshot of the session)</td></tr>
+        <tr><td><code>sic-feedback/js/usecases.js</code></td><td>The 10 use cases, their back-end dependency level, the chip options</td></tr>
+        <tr><td><code>sic-feedback/js/db.js</code></td><td>Firebase wrapper; falls back to the browser's local storage for offline review</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">ArcelorMittal Long SIC · Use-case feedback solution · internal team explainer</div></footer>
+
+<div class="lb" id="lb" onclick="this.classList.remove('open')"><img id="lbImg" alt="" /></div>
+<script>
+  document.querySelectorAll('figure img, .phone img').forEach(img=>{
+    img.addEventListener('click',()=>{
+      const lb=document.getElementById('lb'), im=document.getElementById('lbImg');
+      im.src = img.dataset.full || img.src; im.alt = img.alt; lb.classList.add('open');
+    });
+  });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.getElementById('lb').classList.remove('open'); });
+</script>
+</body>
+</html>
